@@ -1,5 +1,5 @@
 // 设置canvas和初始变量
-const canvas = document.getElementById('myCanvas');
+const canvas = document.getElementById('gameCanvas'); // 请确保这里的ID和HTML中的canvas ID一致
 const ctx = canvas.getContext('2d');
 let x = canvas.width / 2;
 let y = canvas.height - 30;
