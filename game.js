@@ -3,19 +3,20 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let x = canvas.width / 2;
 let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
-const ballRadius = 10;
-let paddleHeight = 10;
-let paddleWidth = 150;
+let dx = 3;
+let dy = -4.5;
+const ballRadius = 12.5;
+let paddleHeight = 8;
+let paddleWidth = 400;
 let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
 let score = 0;
-const winScore = 100; // 赢得游戏所需的分数
-let speedIncreaseCount = 1;
-const maxSpeedIncreases = 20;
-const speedIncreaseFactor = 1.05;
+const winScore = 20; // 赢得游戏所需的分数
+let speedIncreaseCount = 0.25;
+const maxSpeedIncreases = 0.25*winScore;
+let speedIncreases = 0;
+let speedIncreaseFactor = 1.01;
 
 // 监听键盘事件
 document.addEventListener('keydown', keyDownHandler, false);
@@ -43,7 +44,7 @@ function keyUpHandler(e) {
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-    ctx.fillStyle = '#0095DD';
+    ctx.fillStyle = '#008000';
     ctx.fill();
     ctx.closePath();
 }
@@ -52,7 +53,7 @@ function drawBall() {
 function drawPaddle() {
     ctx.beginPath();
     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-    ctx.fillStyle = '#0095DD';
+    ctx.fillStyle = '#A52A2A';
     ctx.fill();
     ctx.closePath();
 }
@@ -70,68 +71,86 @@ window.addEventListener('resize', resizeCanvas, false);
 // 初始调整画布大小
 resizeCanvas();
 
-// 绘制分数
+// Draw the score on the canvas
+// Draw the score on the canvas
 function drawScore() {
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#0095DD';
-    ctx.fillText('Score: ' + score, 8, 20);
+    ctx.font = '40px Arial'; // Font size set to 40px
+    ctx.fillStyle = '#FF0000'; // Font color is red
+    // Set the y position to 40px + some padding, let's use 10px as padding
+    ctx.fillText('Score: ' + score, 8, 50); // Adjust text position if needed
 }
 
-// 绘制球速
+// Draw the speed on the canvas
 function drawSpeed() {
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#0095DD';
-    ctx.fillText('Speed: ' + Math.sqrt(dx*dx + dy*dy).toFixed(2), canvas.width - 120, 20);
+    ctx.font = '40px Arial'; // Font size set to 40px
+    ctx.fillStyle = '#0095DD'; // Font color is blue
+    // Set the y position to 40px + some padding, let's use 10px as padding
+    // Adjust the x position to account for the text width
+    ctx.fillText('Speed: ' + Math.sqrt(dx*dx + dy*dy).toFixed(2), canvas.width - 300, 50); // Adjust text position if needed
 }
 
-// 画图函数
+// Main drawing function
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawPaddle();
     drawScore();
     drawSpeed();
-    
-    // 碰到挡板的逻辑
-    if(y + dy > canvas.height - ballRadius) {
-        if(x > paddleX && x < paddleX + paddleWidth) {
-            dy = -dy * speedIncreaseFactor; // 反向并增加速度
-            score++; // 增加分数
-            if(score >= winScore) { // 检查是否赢得游戏
-                alert('You win! Congratulations!');
-                document.location.reload();
-                return; // 结束draw函数执行
-            }
 
-            // 只有在增加次数小于最大增加次数时才增加速度
-            if(speedIncreaseCount < maxSpeedIncreases) {
-                dx *= speedIncreaseFactor;
-                speedIncreaseCount++;
-            }
+// Ball collision logic with the paddle
+if(y + dy > canvas.height - ballRadius) {
+    if(x > paddleX && x < paddleX + paddleWidth) {
+        dy = -dy * speedIncreaseFactor; // Reverse direction and increase speed
+
+        // Increase dx speed if we haven't increased it maxSpeedIncreases times yet
+        if (speedIncreases < maxSpeedIncreases) {
+            dx = dx < 0 ? dx - speedIncreaseCount : dx + speedIncreaseCount;
+            speedIncreases++; // Increment the speed increases counter
         }
+
+        score++; // Increase the score
+
+        if (score >= 0.25*winScore){
+            speedIncreaseFactor = speedIncreaseFactor + 0.005;
+        }
+
+        // Check if the player has won the game
+        if (score >= winScore) {
+            alert('Congratulations! You won!');
+            document.location.reload(); // Reload the page to restart the game
+            clearInterval(interval); // Needed for Chrome to end game
+            return; // Exit the function to stop the game
+        }
+    } else {
+        // If the ball hits the bottom and it's not within the paddle's range
+        alert('Game Over');
+        document.location.reload(); // Reload the page to restart the game
+        clearInterval(interval); // Needed for Chrome to end game
+        return; // Exit the function to stop the game
     }
-    
-    // 碰到左右边界的逻辑
+}
+
+    // Ball collision logic with the walls
     if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
-    // 碰到顶部的逻辑
+    // Ball collision logic with the top
     if(y + dy < ballRadius) {
         dy = -dy;
     }
-    
-    // 按键移动挡板的逻辑
+
+    // Paddle movement logic
     if(rightPressed && paddleX < canvas.width - paddleWidth) {
         paddleX += 7;
     }
     else if(leftPressed && paddleX > 0) {
         paddleX -= 7;
     }
-    
+
     x += dx;
     y += dy;
-    requestAnimationFrame(draw);
+
+    requestAnimationFrame(draw); // Request to do this again ASAP
 }
 
-// 开始画图
-draw();
+draw(); // Call the draw function to start the game
