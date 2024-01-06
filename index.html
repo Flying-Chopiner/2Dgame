@@ -9,24 +9,21 @@
     border: 1px solid black;
     display: block;
     margin: 0 auto;
+    background: #f0f0f0; /* 设置canvas背景颜色 */
   }
 
   html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* 防止滚动条出现 */
-  height: 100%;
-}
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* 防止滚动条出现 */
+    height: 100%;
+  }
 
-canvas {
-  background: #f0f0f0; /* 背景颜色，可根据需要修改 */
-  display: block; /* 防止页面出现滚动条 */
-}
 </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="480" height="320"></canvas>
+<canvas id="gameCanvas"></canvas> <!-- 移除了width和height属性，可以在JavaScript中动态设置 -->
 
 <script src="game.js"></script>
 
