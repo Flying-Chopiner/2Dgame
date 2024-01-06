@@ -29,6 +29,9 @@ function keyDownHandler(e) {
     else if(e.key === 'Left' || e.key === 'ArrowLeft') {
         leftPressed = true;
     }
+    else if(e.key === 'Enter') {
+        window.history.back(); // Go back to the previous page when Enter is pressed
+    }
 }
 
 function keyUpHandler(e) {
