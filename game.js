@@ -57,6 +57,14 @@ function draw() {
     drawBall();
     drawPaddle();
 
+   // 如果挡板移动到了画布之外，需要将其重置回边界内
+   if(rightPressed && paddleX < canvas.width - paddleWidth) {
+       paddleX += 7;
+   }
+   else if(leftPressed && paddleX > 0) {
+       paddleX -= 7;
+   }
+    
     if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
     }
@@ -85,5 +93,24 @@ function draw() {
     y += dy;
     requestAnimationFrame(draw);
 }
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // 重新计算游戏元素的位置和大小，因为画布的大小已经改变
+  x = canvas.width / 2;
+  y = canvas.height - 30;
+  paddleWidth = canvas.width / 8;
+  paddleHeight = 10; // 可以根据需要调整挡板高度
+  paddleX = (canvas.width - paddleWidth) / 2;
+  ballRadius = 10; // 或根据画布大小动态设置球的大小
+}
+
+// 监听窗口大小变化事件
+window.addEventListener('resize', resizeCanvas, false);
+
+// 初始调整画布大小
+resizeCanvas();
 
 draw(); // Call the draw function
